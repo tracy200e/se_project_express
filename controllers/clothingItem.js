@@ -8,7 +8,7 @@ const createItem = (req, res) => {
 
   const { name, weather, imageURL } = req.body;
 
-  ClothingItem.create({ name, weather, imageURL })
+  ClothingItem.create({ name, weather, imageURL, owner: req.user._id })
     .then((item) => {
       console.log(item);
       res.send({ data: item });
