@@ -5,7 +5,7 @@ const { createItem, getItem, updateItem, deleteItem, likeItem, unlikeItem } = re
 // Create item
 router.post("/", createItem);
 
-// Read item
+// Get item
 router.get("/", getItem);
 
 // Update item
