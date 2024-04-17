@@ -7,7 +7,7 @@ const getUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res.status(INTERNAL_SERVER_ERROR).send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -22,9 +22,9 @@ const getUser = (req, res) => {
       if (err.name === "DocumentNotFoundError") {
         res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: err.message });
       } else if (err.name === "CastError") {
-        res.status(CAST_ERROR).send({ message: err.message });
+        res.status(CAST_ERROR).send({ message: "Invalid data." });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: "An error has occurred on the server." });
       }
     });
 };
@@ -38,9 +38,9 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res.status(VALIDATION_ERROR).send({ message: err.message });
+        res.status(VALIDATION_ERROR).send({ message: "Invalid data." });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ messgae: err.message });
+        res.status(INTERNAL_SERVER_ERROR).send({ messgae: "An error has occurred on the server." });
       }
     });
 };
