@@ -8,9 +8,6 @@ router.post("/", createItem);
 // Get item
 router.get("/", getItem);
 
-// Update item
-router.put("/:itemId", updateItem);
-
 // Delete item
 router.delete("/:itemId", deleteItem);
 
