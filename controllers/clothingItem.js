@@ -6,9 +6,9 @@ const createItem = (req, res) => {
   console.log(req);
   console.log(req.body);
 
-  const { name, weather, imageURL } = req.body;
+  const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageURL, owner: req.user._id })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
       console.log(item);
       res.send({ data: item });
@@ -36,7 +36,7 @@ const getItem = (req, res) => {
 // Update clothing item
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageURL } = req.body;
+  const { imageUrl } = req.body;
 
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
     .orFail()
