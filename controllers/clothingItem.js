@@ -91,4 +91,4 @@ const unlikeItem = (req, res) => {
     });
 }
 
-module.exports = { createItem, getItem, updateItem, deleteItem, likeItem, unlikeItem };
+module.exports = { createItem, getItem, deleteItem, likeItem, unlikeItem };
