@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const { CAST_ERROR, VALIDATION_ERROR, DOCUMENT_NOT_FOUND_ERROR, INTERNAL_SERVER_ERROR } = require("../utils/errors");
+const { CAST_ERROR, DOCUMENT_NOT_FOUND_ERROR, INTERNAL_SERVER_ERROR } = require("../utils/errors");
 
 // GET all users
 const getUsers = (req, res) => {
@@ -38,7 +38,7 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res.status(VALIDATION_ERROR).send({ message: "Invalid data." });
+        res.status(CAST_ERROR).send({ message: "Invalid data." });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ messgae: "An error has occurred on the server." });
       }
