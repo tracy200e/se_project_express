@@ -15,7 +15,7 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err === "ValidationError") {
+      if (err.name === "ValidationError") {
         res.status(CAST_ERROR).send({ message: "Invalid data." });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: "An error has occurred on the server." });
@@ -73,7 +73,7 @@ const likeItem = (req, res) => {
 }
 
 const unlikeItem = (req, res) => {
-  ClothingItem.findByIdAndDelete(
+  ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id }},
     { new: true }
