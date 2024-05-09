@@ -23,6 +23,7 @@ const getUsers = (req, res) => {
 // GET user by ID
 const getUser = (req, res) => {
   const { userId } = req.params;
+
   User.findById(userId)
     .orFail()
     .then((user) => res.status(200).send(user))
@@ -97,4 +98,18 @@ const logInUser = (req, res) => {
   });
 };
 
-module.exports = { getUsers, createUser, getUser, logInUser };
+const getCurrentUser = (req, res) => {
+  const { userId } = req.params;
+
+  User.findById(userId)
+  .orFail()
+  .then((user) => res.status(200).send(user))
+  .catch((err) => {
+    console.error(err);
+    res
+      .status(INTERNAL_SERVER_ERROR)
+      .send({ message: "An error has occurred on the server." });
+  });
+}
+
+module.exports = { getUsers, createUser, getUser, logInUser, getCurrentUser };
