@@ -6,6 +6,7 @@ const {
 } = require("../utils/errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
 
 // GET all users
 const getUsers = (req, res) => {
