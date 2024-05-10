@@ -81,7 +81,11 @@ const createUser = (req, res) => {
 const logInUser = (req, res) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
+  if (!email) {
+    return res.status(CAST_ERROR).send({ message: err.message });
+  }
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -117,8 +121,27 @@ const getCurrentUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { userId } = req.params;
+  const { name, avatar } = req.body;
 
-  User.findByIdAndUpdate(userId);
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true },
+  )
+    .orFail()
+    .then((user) => res.status(SUCCESS).send(user))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        res.status(CAST_ERROR).send({ message: "Invalid data." });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server." });
+      }
+    });
 };
 
 module.exports = {
