@@ -3,8 +3,8 @@ const {
   CAST_ERROR,
   DOCUMENT_NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
+  CONFLICT_ERROR,
 } = require("../utils/errors");
-const { SUCCESS, PROCESSED } = require("../utils/successes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
@@ -12,7 +12,7 @@ const { JWT_SECRET } = require("../utils/config");
 // GET all users
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(PROCESSED).send(users))
+    .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.error(err);
       res
@@ -27,7 +27,7 @@ const getUser = (req, res) => {
 
   User.findById(userId)
     .orFail()
-    .then((user) => res.status(PROCESSED).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -46,36 +46,40 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  bcrypt
-    .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        name,
-        avatar,
-        email,
-        password: hash,
-      }),
-    )
-    .then((user) =>
-      res.status(SUCCESS).send({
-        _id: user._id,
-        email: user.email,
-      }),
-    )
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
-        res.status(CAST_ERROR).send({ message: "Invalid data." });
-      } else if (err.code === 11000) {
-        res
-          .status(DUPLICATE_KEY_ERROR)
-          .send({ message: "Duplicate key error. User email already exists!" });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
-      }
-    });
+  User.findOne({ email }).then((user) => {
+    if (user) {
+      return res
+        .status(CONFLICT_ERROR)
+        .send({ message: "This email address already exists." });
+    }
+
+    return bcrypt
+      .hash(password, 10)
+      .then((hash) =>
+        User.create({
+          name,
+          avatar,
+          email,
+          password: hash,
+        }),
+      )
+      .then((user) =>
+        res.status(201).send({
+          _id: user._id,
+          email: user.email,
+        }),
+      )
+      .catch((err) => {
+        console.error(err);
+        if (err.name === "ValidationError") {
+          res.status(CAST_ERROR).send({ message: "Invalid data." });
+        } else {
+          res
+            .status(INTERNAL_SERVER_ERROR)
+            .send({ message: "An error has occurred on the server." });
+        }
+      });
+  });
 };
 
 const logInUser = (req, res) => {
@@ -93,7 +97,8 @@ const logInUser = (req, res) => {
 
       res.send({ token });
 
-      User.findOne({ email }).select("+password")
+      User.findOne({ email })
+        .select("+password")
         .then((user) => {
           return bcrypt.compare(password, user.password).then((matched) => {
             if (!matched) {
@@ -114,7 +119,7 @@ const getCurrentUser = (req, res) => {
 
   User.findById(userId)
     .orFail()
-    .then((user) => res.status(PROCESSED).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
       res
@@ -134,7 +139,7 @@ const updateUser = (req, res) => {
     { new: true, runValidators: true },
   )
     .orFail()
-    .then((user) => res.status(SUCCESS).send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {

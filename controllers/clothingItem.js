@@ -3,9 +3,9 @@ const {
   CAST_ERROR,
   DOCUMENT_NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
-  FORBIDDEN,
+  FORBIDDEN_ERROR,
+  CONFLICT_ERROR
 } = require("../utils/errors");
-const { PROCESSED } = require("../utils/successes");
 
 // Create clothing item
 const createItem = (req, res) => {
@@ -54,10 +54,10 @@ const deleteItem = (req, res) => {
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
         return res
-          .status(FORBIDDEN)
+          .status(FORBIDDEN_ERROR)
           .send({ message: "This item does not belong to you." });
       }
-      res.status(PROCESSED).send({ data: item });
+      res.status(200).send({ data: item });
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
