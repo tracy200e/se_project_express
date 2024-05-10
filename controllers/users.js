@@ -93,18 +93,22 @@ const logInUser = (req, res) => {
 
       res.send({ token });
 
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          return Promise.reject(new Error("Incorrect email or password"));
-        }
-        return user;
-      });
+      User.findOne({ email }).select("+password")
+        .then((user) => {
+          return bcrypt.compare(password, user.password).then((matched) => {
+            if (!matched) {
+              return Promise.reject(new Error("Incorrect email or password"));
+            }
+            return user;
+          });
+        });
     })
     .catch((err) => {
       res.status(401).send({ message: err.message });
     });
 };
 
+// GET current user
 const getCurrentUser = (req, res) => {
   const { userId } = req.params;
 
@@ -119,6 +123,7 @@ const getCurrentUser = (req, res) => {
     });
 };
 
+// UPDATE user
 const updateUser = (req, res) => {
   const { userId } = req.params;
   const { name, avatar } = req.body;
