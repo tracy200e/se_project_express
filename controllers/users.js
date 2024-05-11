@@ -3,6 +3,7 @@ const {
   CAST_ERROR,
   DOCUMENT_NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
+  FORBIDDEN_ERROR,
   CONFLICT_ERROR,
 } = require("../utils/errors");
 const bcrypt = require("bcryptjs");
@@ -22,24 +23,27 @@ const getUsers = (req, res) => {
 };
 
 // GET user by ID
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
 
   User.findById(userId)
-    .orFail()
+    .orFail(() => {
+      const error = new Error("User ID not found.");
+      error.statusCode = DOCUMENT_NOT_FOUND_ERROR;
+    })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
         res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: err.message });
-      } else if (err.name === "CastError") {
-        res.status(CAST_ERROR).send({ message: "Invalid data." });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error has occurred on the server." });
       }
-    });
+      if (err.name === "CastError") {
+        res.status(CAST_ERROR).send({ message: "Invalid data." });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server." });
+      });
 };
 
 // CREATE user
@@ -64,29 +68,34 @@ const createUser = (req, res) => {
         }),
       )
       .then((user) =>
-        res.status(201).send({
-          _id: user._id,
-          email: user.email,
-        }),
+          res.status(201).send({
+            _id: user._id,
+            email: user.email,
+          }),
       )
       .catch((err) => {
         console.error(err);
         if (err.name === "ValidationError") {
-          res.status(CAST_ERROR).send({ message: "Invalid data." });
-        } else {
-          res
-            .status(INTERNAL_SERVER_ERROR)
-            .send({ message: "An error has occurred on the server." });
+          return res.status(CAST_ERROR).send({ message: "Invalid data." });
         }
+        if (err.name === 11000) {
+          return res
+            .status(CONFLICT_ERROR)
+            .send({ message: "This email already exists."});
+        }
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "An error has occurred on the server." });
       });
   });
 };
 
+// Log in
 const logInUser = (req, res) => {
   const { email, password } = req.body;
 
-  if (!email) {
-    return res.status(CAST_ERROR).send({ message: err.message });
+  if (!email || !password) {
+    return res.status(CAST_ERROR).send({ message: "Email address and password are required." });
   }
 
   return User.findUserByCredentials(email, password)
@@ -96,41 +105,19 @@ const logInUser = (req, res) => {
       });
 
       res.send({ token });
-
-      User.findOne({ email })
-        .select("+password")
-        .then((user) => {
-          return bcrypt.compare(password, user.password).then((matched) => {
-            if (!matched) {
-              return Promise.reject(new Error("Incorrect email or password"));
-            }
-            return user;
-          });
-        });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
-};
-
-// GET current user
-const getCurrentUser = (req, res) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
       console.error(err);
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server." });
+      if (err.message === "Incorrect email or password") {
+        return res.status(FORBIDDEN_ERROR).send({ message: "Unauthorized." });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
 // UPDATE user
 const updateUser = (req, res) => {
-  const { userId } = req.params;
+  const userId = req.user._id;
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -157,7 +144,6 @@ const updateUser = (req, res) => {
 module.exports = {
   getUsers,
   createUser,
-  getUser,
   logInUser,
   getCurrentUser,
   updateUser,
