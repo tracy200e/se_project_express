@@ -15,10 +15,7 @@ const getCurrentUser = (req, res) => {
   const userId = req.user._id;
 
   User.findById(userId)
-    .orFail(() => {
-      const error = new Error("User ID not found.");
-      error.statusCode = DOCUMENT_NOT_FOUND_ERROR;
-    })
+    .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
