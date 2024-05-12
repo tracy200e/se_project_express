@@ -48,7 +48,7 @@ const deleteItem = (req, res) => {
 
   console.log(itemId);
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
