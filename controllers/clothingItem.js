@@ -3,8 +3,7 @@ const {
   CAST_ERROR,
   DOCUMENT_NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
-  FORBIDDEN_ERROR,
-  CONFLICT_ERROR
+  FORBIDDEN_ERROR
 } = require("../utils/errors");
 
 // Create clothing item

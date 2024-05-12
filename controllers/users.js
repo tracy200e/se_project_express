@@ -1,14 +1,14 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const User = require("../models/user");
 const {
   CAST_ERROR,
   UNAUTHORIZED_ERROR,
   DOCUMENT_NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
-  FORBIDDEN_ERROR,
-  CONFLICT_ERROR,
+  CONFLICT_ERROR
 } = require("../utils/errors");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 
 // GET user by ID
@@ -53,7 +53,7 @@ const createUser = (req, res) => {
           password: hash,
         }),
       )
-      .then((user) =>
+      .then(() =>
           res.status(201).send({
             _id: user._id,
             email: user.email,
@@ -130,7 +130,6 @@ const updateUser = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   createUser,
   logInUser,
   getCurrentUser,
