@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const {
   CAST_ERROR,
+  UNAUTHORIZED_ERROR,
   DOCUMENT_NOT_FOUND_ERROR,
   INTERNAL_SERVER_ERROR,
   FORBIDDEN_ERROR,
@@ -94,7 +95,7 @@ const logInUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        return res.status(FORBIDDEN_ERROR).send({ message: "Unauthorized." });
+        return res.status(UNAUTHORIZED_ERROR).send({ message: "Unauthorized." });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
@@ -114,7 +115,9 @@ const updateUser = (req, res) => {
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === "ValidationError") {
+        res.status(CAST_ERROR).send({ message: err.message }); 
+      } else if (err.name === "DocumentNotFoundError") {
         res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: err.message });
       } else if (err.name === "CastError") {
         res.status(CAST_ERROR).send({ message: "Invalid data." });
