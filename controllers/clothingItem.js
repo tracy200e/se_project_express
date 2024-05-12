@@ -57,7 +57,7 @@ const deleteItem = (req, res) => {
           .status(FORBIDDEN_ERROR)
           .send({ message: "This item does not belong to you." });
       }
-      res.status(200).send({ data: item });
+      return item.deleteOne().then(() => res.send({ message: "Item deleted."}));
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
