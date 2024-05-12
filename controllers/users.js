@@ -63,7 +63,7 @@ const createUser = (req, res) => {
         if (err.name === "ValidationError") {
           return res.status(CAST_ERROR).send({ message: "Invalid data." });
         }
-        if (err.name === 11000) {
+        if (err.code === 11000) {
           return res
             .status(CONFLICT_ERROR)
             .send({ message: "This email already exists."});
