@@ -12,7 +12,7 @@ router.use("/users", userRouter);
 router.use("/items", itemRouter);
 
 router.use((req, res) => {
-    res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: "Router not found." });
-})
+  res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: "Router not found." });
+});
 
 module.exports = router;
