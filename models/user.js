@@ -11,15 +11,17 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    validate: {
+      validator: (value) => validator.isURL(value),
+      message: "Link is not valid.",
+    },
   },
   email: {
     type: String,
     unique: true,
     required: true,
     validate: {
-      validator(value) {
-        return validator.isEmail(value);
-      },
+      validator: (value) => validator.isEmail(value),
       message: "You must enter a valid email.",
     },
   },
