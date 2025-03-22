@@ -1,33 +1,29 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const { UNAUTHORIZED_ERROR } = require("../utils/errors");
+const UnauthorizedError = require("../errors/UnauthorizedError");
 
 module.exports = (req, res, next) => {
-    // get authorization from the header
-    const { authorization } = req.headers;
+  // get authorization from the header
+  const { authorization } = req.headers;
 
-    // check if the header exists and starts with "Bearer "
-    if (!authorization || !authorization.startsWith("Bearer ")) {
-        return res
-            .status(UNAUTHORIZED_ERROR)
-            .send({ message: "Authorization required"});
-    };
+  // check if the header exists and starts with "Bearer "
+  if (!authorization || !authorization.startsWith("Bearer ")) {
+    next(new UnauthorizedError("Authorization required."));
+  }
 
-    // get the token
-    const token = authorization.replace("Bearer ", "");
+  // get the token
+  const token = authorization.replace("Bearer ", "");
 
-    // verify the token
-    let payload;
-    
-    try {
-        payload = jwt.verify(token, JWT_SECRET);
-    } catch (err) {
-        return res
-            .status(UNAUTHORIZED_ERROR)
-            .send({ message: "Authorization required"});
-    }
+  // verify the token
+  let payload;
 
-    req.user = payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+  } catch (err) {
+    next(new UnauthorizedError("Authorization required."));
+  }
 
-    return next();
+  req.user = payload;
+
+  return next();
 };
