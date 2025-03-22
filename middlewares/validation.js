@@ -62,7 +62,7 @@ const validateUserAuthentication = celebrate({
 
 const validateIDs = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24).hex().required().messages({
+    itemId: Joi.string().length(24).hex().required().messages({
       "string.empty": 'The "id" field cannot be empty',
       "string.length": 'The "id" field must have a length of 24.',
     }),
@@ -77,7 +77,7 @@ const validateUpdateUser = celebrate({
       "string.empty": 'The "name" field must be filled in',
     }),
 
-    avatarUrl: Joi.string().required().custom(validateURL).messages({
+    avatar: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "avatarUrl" field must be filled in',
       "string.uri": 'The "avatarUrl" field must be a valid url',
     }),
