@@ -1,5 +1,8 @@
 const router = require("express").Router();
-const { validateClothingItem, validateIDs } from "../middlewares/validation";
+const {
+  validateClothingItem,
+  validateIDs,
+} = require("../middlewares/validation");
 
 const {
   createItem,
