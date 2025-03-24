@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Joi, celebrate } = require("celebrate");
+import { validateClothingItem } from "../middlewares/validation";
 
 const {
   createItem,
@@ -10,58 +10,18 @@ const {
 } = require("../controllers/clothingItem");
 
 // Create item
-router.post(
-  "/",
-  celebrate({
-    body: Joi.object().keys({
-      imageUrl: Joi.string().uri.required(),
-      name: Joi.string().required.min(2).max(30),
-      weather: Joi.string().required().validate("hot", "warm", "cold"),
-    }),
-  }),
-  createItem,
-);
+router.post("/", validateClothingItem, createItem);
 
 // Get item
 router.get("/", getItem);
 
 // Delete item
-router.delete(
-  "/:itemId",
-  celebrate({
-    body: Joi.object().keys({
-      imageUrl: Joi.string().uri.required(),
-      name: Joi.string().required.min(2).max(30),
-      weather: Joi.string().required().validate("hot", "warm", "cold"),
-    }),
-  }),
-  deleteItem,
-);
+router.delete("/:itemId", validateClothingItem, deleteItem);
 
 // Like item
-router.put(
-  "/:itemId/likes",
-  celebrate({
-    body: Joi.object().keys({
-      imageUrl: Joi.string().uri.required(),
-      name: Joi.string().required.min(2).max(30),
-      weather: Joi.string().required().validate("hot", "warm", "cold"),
-    }),
-  }),
-  likeItem,
-);
+router.put("/:itemId/likes", validateClothingItem, likeItem);
 
 // Unlike item
-router.delete(
-  "/:itemId/likes",
-  celebrate({
-    body: Joi.object().keys({
-      imageUrl: Joi.string().uri.required(),
-      name: Joi.string().required.min(2).max(30),
-      weather: Joi.string().required().validate("hot", "warm", "cold"),
-    }),
-  }),
-  unlikeItem,
-);
+router.delete("/:itemId/likes", validateClothingItem, unlikeItem);
 
 module.exports = router;
