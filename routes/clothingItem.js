@@ -1,5 +1,5 @@
 const router = require("express").Router();
-import { validateClothingItem } from "../middlewares/validation";
+const { validateClothingItem, validateIDs } from "../middlewares/validation";
 
 const {
   createItem,
@@ -16,12 +16,12 @@ router.post("/", validateClothingItem, createItem);
 router.get("/", getItem);
 
 // Delete item
-router.delete("/:itemId", validateClothingItem, deleteItem);
+router.delete("/:itemId", validateIDs, deleteItem);
 
 // Like item
-router.put("/:itemId/likes", validateClothingItem, likeItem);
+router.put("/:itemId/likes", validateIDs, likeItem);
 
 // Unlike item
-router.delete("/:itemId/likes", validateClothingItem, unlikeItem);
+router.delete("/:itemId/likes", validateIDs, unlikeItem);
 
 module.exports = router;
